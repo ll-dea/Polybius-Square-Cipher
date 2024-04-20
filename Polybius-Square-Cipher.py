@@ -1,69 +1,127 @@
-def generate_polybius_square(variant):
-    if variant == "ADFGVX":
-        grid = [['A', 'D', 'F', 'G', 'V', 'X'],
-                ['B', 'C', 'E', 'I', 'K', 'L'],
-                ['M', 'N', 'O', 'P', 'Q', 'R'],
-                ['S', 'T', 'U', 'W', 'Y', 'Z'],
-                ['0', '1', '2', '3', '4', '5'],
-                ['6', '7', '8', '9', ',', '.']]
-    elif variant == "ADFGX":
-        grid = [['A', 'D', 'F', 'G', 'X'],
-                ['B', 'C', 'E', 'I', 'K'],
-                ['L', 'M', 'N', 'O', 'P'],
-                ['Q', 'R', 'S', 'T', 'U'],
-                ['V', 'W', 'Y', 'Z', '0']]
+import string
+
+def generate_polybius_table(variant="ADFGX"):
+    variant = variant.upper()
+    if variant == "ADFGX":
+        return [
+            ['M', 'P', 'R', 'T', 'X'],
+            ['A', 'B', 'C', 'D', 'E'],
+            ['F', 'G', 'H', 'I/J', 'K'],
+            ['L', 'N', 'O', 'Q', 'S'],
+            ['U', 'V', 'W', 'Y', 'Z']
+        ]
+    elif variant == "ADFGVX":
+        return [
+            ['P', 'H', '0', 'Q', 'G'],
+            ['6', '4', 'B', '2', 'E'],
+            ['N', '1', '5', 'D', 'F'],
+            ['3', '7', '9', 'C', 'I'],
+            ['8', 'R', 'L', 'A', 'K'],
+            ['M', 'O', 'S', 'T', 'U'],
+            ['V', 'W', 'X', 'Y', 'Z']
+        ]
     elif variant == "ADFGVXZ":
-        grid = [['A', 'D', 'F', 'G', 'V', 'X', 'Z'],
-                ['B', 'C', 'E', 'I', 'K', 'L', 'M'],
-                ['N', 'O', 'P', 'Q', 'R', 'S', 'T'],
-                ['U', 'W', 'Y', '0', '1', '2', '3'],
-                ['4', '5', '6', '7', '8', '9', ','],
-                ['.', ' ', '!', '?', '@', '#', '$'],
-                ['%', '&', '*', '(', ')', '-', '/']]
+        return [
+            ['P', 'H', '0', 'Q', 'G'],
+            ['6', '4', 'B', '2', 'E'],
+            ['N', '1', '5', 'D', 'F'],
+            ['3', '7', '9', 'C', 'I'],
+            ['8', 'R', 'L', 'A', 'K'],
+            ['M', 'O', 'S', 'T', 'U'],
+            ['V', 'W', 'X', 'Y', 'Z'],
+            ['Z', 'Z', 'Z', 'Z', 'Z']
+        ]
     else:
-        raise ValueError("Varianti eshte gabim! Ju lutem zgjedhni nje nga keto opsione: ADFGVX, ADFGX, ADFGVXZ")
-    return grid
-def encrypt_message(message, grid):
-    encrypted_message = ""
+        raise ValueError("Ky variant nuk i eshte pjese e Polybius.")
+
+def polybius_encrypt(message, variant="ADFGX"):
+    message = message.upper().replace("J", "I")
+    table = generate_polybius_table(variant)
+    cipher = ""
     for char in message:
-        if char.upper() == 'J':
-            char = 'I'
-        for i in range(len(grid)):
-            for j in range(len(grid[0])):
-                if grid[i][j] == char.upper():
-                    encrypted_message += str(i) + str(j)
-    return encrypted_message
+        if char in string.ascii_uppercase:
+            for i in range(5):
+                for j in range(5):
+                    if table[i][j] == char:
+                        cipher += "ADFGX"[i] + "ADFGX"[j]
+        elif char == " ":
+            cipher += " "
+    return cipher
 
-def decrypt_message(encrypted_message, grid):
-    decrypted_message = ""
-    for i in range(0, len(encrypted_message), 2):
-        row = int(encrypted_message[i])
-        col = int(encrypted_message[i+1])
-        decrypted_message += grid[row][col]
-    return decrypted_message
-
-def main():
-    variant = input("Zgjidhni nje variant nga ADFGVX, ADFGX, ose ADFGVXZ: ")
-
-    if variant not in ["ADFGVX", "ADFGX", "ADFGVXZ"]:
-        print("Varianti i zgjedhur nuk eshte valid. Ju lutem zgjidhni nje nga keto opsione: ADFGVX, ADFGX, ADFGVXZ")
-        return
-
-    option = input("Zgjidhni 1 per te enkriptuar ose 2 per te dekriptuar: ")
-
-    if option == "1":
-        message = input("Shkruani mesazhin tuaj: ")
-        grid = generate_polybius_square(variant)
-        encrypted_message = encrypt_message(message, grid)
-        print("Mesazhi i enkriptuar: ", encrypted_message)
-    elif option == "2":
-        encrypted_message = input("Shkruani mesazhin e enkriptuar: ")
-        grid = generate_polybius_square(variant)
-        decrypted_message = decrypt_message(encrypted_message, grid)
-        print("Mesazhi i dekriptuar: ", decrypted_message)
-    else:
-        print("Opsioni i zgjedhur nuk eshte valid. Ju lutem zgjidhni 1 ose 2.")
-
+def polybius_decrypt(cipher, variant="ADFGX"):
+    table = generate_polybius_table(variant)
+    decrypted = ""
+    i = 0
+    while i < len(cipher):
+        if cipher[i] != ' ':
+            row_index = "ADFGX".index(cipher[i])
+            col_index = "ADFGX".index(cipher[i + 1])
+            decrypted += table[row_index][col_index]
+            i += 2
+        else:
+            decrypted += " "
+            i += 1
+    return decrypted
 
 if __name__ == "__main__":
-    main()
+    while True:
+        print("\nPolybius Square Cipher")
+        print("1. Enkripto")
+        print("2. Dekripto")
+        print("3. Dil")
+        choice = input("Shtyp zgjedhjen tende (1/2/3): ")
+
+        if choice == '1':
+            # Get user input
+            message = input("Shtyp nje mesazh per enkriptim: ")
+
+            print("\nZgjidh nje variant te Polybius:")
+            print("1. ADFGX")
+            print("2. ADFGVX")
+            print("3. ADFGVXZ")
+            variant_choice = input("Shtyp zgjedhjen tende (1/2/3): ")
+
+            if variant_choice == '1':
+                variant = "ADFGX"
+            elif variant_choice == '2':
+                variant = "ADFGVX"
+            elif variant_choice == '3':
+                variant = "ADFGVXZ"
+            else:
+                print("Zgjedhje e gabuar! Kthehemi te ADFGX.")
+                variant = "ADFGX"
+
+            # Encrypting a message
+            encrypted_message = polybius_encrypt(message, variant)
+            print("\nMesazhi i enkriptuar:", encrypted_message)
+
+        elif choice == '2':
+            # Get user input
+            message = input("Shtypni nje mesazh per dekriptim: ")
+
+            print("\nZgjidh nje variant te Polybius:")
+            print("1. ADFGX")
+            print("2. ADFGVX")
+            print("3. ADFGVXZ")
+            variant_choice = input("Shtyp zgjedhjen tende (1/2/3): ")
+
+            if variant_choice == '1':
+                variant = "ADFGX"
+            elif variant_choice == '2':
+                variant = "ADFGVX"
+            elif variant_choice == '3':
+                variant = "ADFGVXZ"
+            else:
+                print("Zgjedhje e gabuar! Kthehemi te ADFGX.")
+                variant = "ADFGX"
+
+            # Decrypting a message
+            decrypted_message = polybius_decrypt(message, variant)
+            print("\nMesazhi i dekriptuar:", decrypted_message)
+
+        elif choice == '3':
+            print("Dalje...")
+            break
+
+        else:
+            print("Zgjedhje e gabuar! Ju lutem zgjidhni 1, 2, or 3.")
