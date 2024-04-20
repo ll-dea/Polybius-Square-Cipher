@@ -41,3 +41,29 @@ def decrypt_message(encrypted_message, grid):
         col = int(encrypted_message[i+1])
         decrypted_message += grid[row][col]
     return decrypted_message
+
+def main():
+    variant = input("Zgjidhni nje variant nga ADFGVX, ADFGX, ose ADFGVXZ: ")
+
+    if variant not in ["ADFGVX", "ADFGX", "ADFGVXZ"]:
+        print("Varianti i zgjedhur nuk eshte valid. Ju lutem zgjidhni nje nga keto opsione: ADFGVX, ADFGX, ADFGVXZ")
+        return
+
+    option = input("Zgjidhni 1 per te enkriptuar ose 2 per te dekriptuar: ")
+
+    if option == "1":
+        message = input("Shkruani mesazhin tuaj: ")
+        grid = generate_polybius_square(variant)
+        encrypted_message = encrypt_message(message, grid)
+        print("Mesazhi i enkriptuar: ", encrypted_message)
+    elif option == "2":
+        encrypted_message = input("Shkruani mesazhin e enkriptuar: ")
+        grid = generate_polybius_square(variant)
+        decrypted_message = decrypt_message(encrypted_message, grid)
+        print("Mesazhi i dekriptuar: ", decrypted_message)
+    else:
+        print("Opsioni i zgjedhur nuk eshte valid. Ju lutem zgjidhni 1 ose 2.")
+
+
+if __name__ == "__main__":
+    main()
